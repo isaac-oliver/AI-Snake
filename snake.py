@@ -7,7 +7,8 @@ pygame.display.set_caption("Snake Game")
 FPS = 60
 direction = "RIGHT"
 FramePerSec = pygame.time.Clock()
-snake_pos = [100, 300]
+snake_pos = [[100, 300],[80, 300],[60, 300]]
+length = 3
 running = True
 move_del = 250
 lastmove = 0
@@ -26,9 +27,12 @@ while running:
             running = False
 
     screen.fill((0, 0, 0))
-    pygame.draw.rect(screen, (0, 255, 0), pygame.Rect(snake_pos[0], snake_pos[1], 20, 20))
+    for pos in snake_pos:
+        pygame.draw.rect(screen, (0, 255, 0), (pos[0], pos[1], 20, 20))
     key = pygame.key.get_pressed()
     current_time = pygame.time.get_ticks()
+    new_head = snake_pos[0].copy()
+
     if key[pygame.K_RIGHT]:
         direction = "RIGHT"
     elif key[pygame.K_LEFT]:
@@ -39,18 +43,21 @@ while running:
         direction = "DOWN"
         
     if current_time - lastmove > move_del:
-
         if direction == "RIGHT":
-            snake_pos[0] += 20
+            new_head[0] += 20
         elif direction == "LEFT":
-            snake_pos[0] -= 20
+            new_head[0] -= 20
         elif direction == "UP":
-            snake_pos[1] -= 20
+            new_head[1] -= 20
         elif direction == "DOWN":
-            snake_pos[1] += 20
+            new_head[1] += 20
         lastmove = current_time
-    if snake_pos[0] < 0 or snake_pos[0] >= WIDTH or snake_pos[1] < 0 or snake_pos[1] >= HEIGHT:
+        snake_pos.insert(0, new_head)
+        snake_pos.pop()
+    
+    if new_head[0] < 0 or new_head[0] >= WIDTH or new_head[1] < 0 or new_head[1] >= HEIGHT:
         game_over()
+    
     pygame.display.update()
     FramePerSec.tick(FPS)
 pygame.quit()
