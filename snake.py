@@ -12,6 +12,14 @@ running = True
 move_del = 250
 lastmove = 0
 current_time = 0
+def game_over():
+    font = pygame.font.SysFont("Arial", 50)
+    text = font.render("Game Over", True, (255, 0, 0))
+    screen.blit(text, (WIDTH // 2 - text.get_width() // 2, HEIGHT // 2 - text.get_height() // 2))
+    pygame.display.update()
+    pygame.time.delay(2000)
+    pygame.quit()
+    exit()
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -41,7 +49,8 @@ while running:
         elif direction == "DOWN":
             snake_pos[1] += 20
         lastmove = current_time
-    
+    if snake_pos[0] < 0 or snake_pos[0] >= WIDTH or snake_pos[1] < 0 or snake_pos[1] >= HEIGHT:
+        game_over()
     pygame.display.update()
     FramePerSec.tick(FPS)
 pygame.quit()
