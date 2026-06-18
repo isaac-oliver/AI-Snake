@@ -15,6 +15,15 @@ while running:
 
     screen.fill((0, 0, 0))
     pygame.draw.rect(screen, (0, 255, 0), pygame.Rect(snake_pos[0], snake_pos[1], 20, 20))
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_LEFT]:
+        snake_pos[0] -= 20
+    elif keys[pygame.K_RIGHT]:
+        snake_pos[0] += 20
+    elif keys[pygame.K_UP]:
+        snake_pos[1] -= 20
+    elif keys[pygame.K_DOWN]:
+        snake_pos[1] += 20
     pygame.display.update()
     FramePerSec.tick(FPS)
 pygame.quit()
