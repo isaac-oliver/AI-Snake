@@ -36,7 +36,6 @@ while running:
     current_time = pygame.time.get_ticks()
     new_head = snake_pos[0].copy()
     
-    # Check input every frame for responsiveness
     if key[pygame.K_RIGHT] and direction != "LEFT":
         next_direction = "RIGHT"
     elif key[pygame.K_LEFT] and direction != "RIGHT":
