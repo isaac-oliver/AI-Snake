@@ -1,4 +1,5 @@
 import pygame # type: ignore
+import random
 pygame.init()
 
 WIDTH, HEIGHT = 400, 400
@@ -9,6 +10,7 @@ direction = "RIGHT"
 next_direction = "RIGHT"
 FramePerSec = pygame.time.Clock()
 snake_pos = [[100, 300],[80, 300],[60, 300]]
+apple_pos = [200,300]
 length = 3
 running = True
 move_del = 250
@@ -36,6 +38,8 @@ while running:
     current_time = pygame.time.get_ticks()
     new_head = snake_pos[0].copy()
     
+    pygame.draw.rect(screen, (255, 0, 0), (apple_pos[0], apple_pos[1], 20, 20))
+
     if key[pygame.K_RIGHT] and direction != "LEFT":
         next_direction = "RIGHT"
     elif key[pygame.K_LEFT] and direction != "RIGHT":
@@ -58,10 +62,11 @@ while running:
             new_head[1] += 20
         lastmove = current_time
         snake_pos.insert(0, new_head)
-        snake_pos.pop()
-    
-    
-    
+        if new_head == apple_pos:
+            apple_pos = [random.randint(0, (WIDTH - 20) // 20) * 20, random.randint(0, (HEIGHT - 20) // 20) * 20]
+        else:
+            snake_pos.pop()
+
     if new_head[0] < 0 or new_head[0] >= WIDTH or new_head[1] < 0 or new_head[1] >= HEIGHT:
         game_over()
     pygame.display.update()
