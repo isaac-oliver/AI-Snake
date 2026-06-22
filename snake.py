@@ -1,5 +1,6 @@
 import pygame # type: ignore
 import random
+from ai import choose_direction
 pygame.init()
 
 WIDTH, HEIGHT = 400, 400
@@ -44,19 +45,20 @@ while running:
     screen.blit(score_text, (WIDTH - score_text.get_width() ,HEIGHT - score_text.get_height()))
     for pos in snake_pos:
         pygame.draw.rect(screen, (0, 255, 0), (pos[0], pos[1], 20, 20))
-    key = pygame.key.get_pressed()
+    key = choose_direction(snake_pos[0], apple_pos)
+
     current_time = pygame.time.get_ticks()
     new_head = snake_pos[0].copy()
     
     pygame.draw.rect(screen, (255, 0, 0), (apple_pos[0], apple_pos[1], 20, 20))
 
-    if key[pygame.K_RIGHT] and direction != "LEFT":
+    if key == "RIGHT" and direction != "LEFT":
         next_direction = "RIGHT"
-    elif key[pygame.K_LEFT] and direction != "RIGHT":
+    elif key == "LEFT" and direction != "RIGHT":
         next_direction = "LEFT"
-    elif key[pygame.K_UP] and direction != "DOWN":
+    elif key == "UP" and direction != "DOWN":
         next_direction = "UP"
-    elif key[pygame.K_DOWN] and direction != "UP":
+    elif key == "DOWN" and direction != "UP":
         next_direction = "DOWN"
     
     if current_time - lastmove > move_del:
