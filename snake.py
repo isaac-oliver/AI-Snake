@@ -45,7 +45,7 @@ while running:
     screen.blit(score_text, (WIDTH - score_text.get_width() ,HEIGHT - score_text.get_height()))
     for pos in snake_pos:
         pygame.draw.rect(screen, (0, 255, 0), (pos[0], pos[1], 20, 20))
-    key = choose_direction(snake_pos[0], apple_pos)
+    key = choose_direction(snake_pos[0], apple_pos,WIDTH,HEIGHT)
 
     current_time = pygame.time.get_ticks()
     new_head = snake_pos[0].copy()
