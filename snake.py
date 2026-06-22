@@ -6,6 +6,7 @@ WIDTH, HEIGHT = 400, 400
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Snake Game")
 FPS = 60
+score = 0
 direction = "RIGHT"
 next_direction = "RIGHT"
 FramePerSec = pygame.time.Clock()
@@ -30,7 +31,7 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-
+    
     screen.fill((0, 0, 0))
     for pos in snake_pos:
         pygame.draw.rect(screen, (0, 255, 0), (pos[0], pos[1], 20, 20))
@@ -64,11 +65,18 @@ while running:
         snake_pos.insert(0, new_head)
         if new_head == apple_pos:
             apple_pos = [random.randint(0, (WIDTH - 20) // 20) * 20, random.randint(0, (HEIGHT - 20) // 20) * 20]
+            for block in snake_pos:
+                if apple_pos == block:
+                    apple_pos = [random.randint(0, (WIDTH - 20) // 20) * 20, random.randint(0, (HEIGHT - 20) // 20) * 20]
         else:
             snake_pos.pop()
 
     if new_head[0] < 0 or new_head[0] >= WIDTH or new_head[1] < 0 or new_head[1] >= HEIGHT:
         game_over()
+    for block in snake_pos[1:]:
+        if new_head == block:
+            game_over()
+    
     pygame.display.update()
     FramePerSec.tick(FPS)
 pygame.quit()
