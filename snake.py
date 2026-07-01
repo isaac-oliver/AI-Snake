@@ -21,6 +21,7 @@ move_del = 200
 lastmove = 0
 current_time = 0
 old_direction = "RIGHT"
+GRAY = (70,70,70)
 def game_over():
     screen.fill((0, 0, 0))
     font = pygame.font.SysFont("Arial", 50)
@@ -42,18 +43,27 @@ while running:
     current_time = pygame.time.get_ticks()
     
     #Screen Setup
-    scoretxt = "Score: " + str(score)
-    score_font = pygame.font.SysFont("Arial", 20)
-    score_text = score_font.render(scoretxt, True, (0, 0, 255))
     screen.fill((0, 0, 0))
-    screen.blit(score_text, (WIDTH - score_text.get_width() ,HEIGHT - score_text.get_height()))
 
+    for i in range(0, WIDTH, 20):
+        pygame.draw.line(screen, GRAY, (i, 0), (i, HEIGHT), 1)
+    for i in range(0, HEIGHT, 20):
+        pygame.draw.line(screen, GRAY, (0, i), (WIDTH, i), 1)
+    
     #Draw Snake
     length = 0
     for pos in snake_pos:
-        pygame.draw.rect(screen, (0, 255, 0), (pos[0], pos[1], 20, 20))
+        if length == 0:
+            pygame.draw.rect(screen, (0, 255, 0), (pos[0], pos[1], 20, 20),2, border_radius=3)
+        else:
+            pygame.draw.rect(screen, (0, 255, 0), (pos[0]+1, pos[1]+1, 18, 18),2, border_radius=3)
         length = length + 1
     
+    #Display Score
+    scoretxt = "Score: " + str(score)
+    score_font = pygame.font.SysFont("Arial", 20)
+    score_text = score_font.render(scoretxt, True, (0, 0, 255))
+    screen.blit(score_text, (WIDTH - score_text.get_width() ,HEIGHT - score_text.get_height()))
     #AI Decision/User Input
     if pygame.key.get_pressed()[pygame.K_RIGHT]:
         key = "RIGHT"
@@ -69,7 +79,7 @@ while running:
     new_head = snake_pos[0].copy()
     
     #Draw Apple
-    pygame.draw.rect(screen, (255, 0, 0), (apple_pos[0], apple_pos[1], 20, 20))
+    pygame.draw.rect(screen, (255, 0, 0), (apple_pos[0], apple_pos[1], 20, 20), 2, border_radius=3)
 
     #Prevent Snake from going back on itself
     if key == "RIGHT" and direction != "LEFT":
@@ -99,7 +109,7 @@ while running:
         #Check if Snake Eats Apple
         if new_head == apple_pos:
             score = score + 1
-            
+
             #Generate New Apple Position
             apple_pos = [random.randint(0, (WIDTH - 20) // 20) * 20, random.randint(0, (HEIGHT - 20) // 20) * 20]
             for block in snake_pos:
