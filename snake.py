@@ -1,3 +1,4 @@
+import os
 import pygame # type: ignore
 import random
 from ai import choose_direction
@@ -6,44 +7,82 @@ pygame.init()
 WIDTH, HEIGHT = 400, 400
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Snake Game")
-FPS = 60
-score = 0
+
+font_path = os.path.join(os.path.dirname(__file__), "Anta-Regular.ttf")
+font_title = pygame.font.Font(font_path, 40)
+font_score = pygame.font.Font(font_path, 24)
+font_game_over = pygame.font.Font(font_path, 50)
+font_score_over = pygame.font.Font(font_path, 30)
 scoretxt=""
-direction = "RIGHT"
-next_direction = "RIGHT"
-FramePerSec = pygame.time.Clock()
-snake_pos = [[100, 300],[80, 300],[60, 300]]
-apple_pos = [200,300]
-length = 0
-key = "RIGHT"
 running = True
-move_del = 200
-lastmove = 0
-current_time = 0
-old_direction = "RIGHT"
-GRAY = (70,70,70)
+
+def game_start():
+    screen.fill((0, 0, 0))
+    text = font_title.render("Snake Game", True, (0, 255, 0))
+    screen.blit(text, (WIDTH // 2 - text.get_width() // 2, HEIGHT // 2 - text.get_height() // 2))
+    pygame.display.update()
+    pygame.time.delay(5000)
 def game_over():
     screen.fill((0, 0, 0))
-    font = pygame.font.SysFont("Arial", 50)
-    text = font.render("Game Over", True, (255, 0, 0))
+    text = font_game_over.render("Game Over", True, (255, 0, 0))
     screen.blit(text, (WIDTH // 2 - text.get_width() // 2, HEIGHT // 2 - text.get_height() // 2))
     screentxt = "Final Score: " + str(score)
-    score_font = pygame.font.SysFont("Arial", 30)
-    score_text = score_font.render(screentxt, True, (255, 255, 255))
+    score_text = font_score_over.render(screentxt, True, (255, 255, 255))
     screen.blit(score_text, (WIDTH // 2 - score_text.get_width() // 2, HEIGHT // 2 + text.get_height() // 2))
     pygame.display.update()
     pygame.time.delay(2000)
     pygame.quit()
     exit()
-while running:
-    # Handle events
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-    current_time = pygame.time.get_ticks()
+
+def reset_game():
+    global direction
+    direction = "RIGHT"
+    global next_direction
+    next_direction = "RIGHT"
+    global FramePerSec
+    FramePerSec = pygame.time.Clock()
+    global snake_pos
+    snake_pos = [[100, 300],[80, 300],[60, 300]]
+    global apple_pos
+    apple_pos = [200,300]
+    global globallength
+    globallength = 0
+    global key
+    key = "RIGHT"
+    global move_del
+    move_del = 200
+    global lastmove
+    lastmove = 0
+    global current_time
+    current_time = 0
+    global GRAY
+    GRAY = (40,40,40)
+    global FPS
+    FPS = 60
+    global score
+    score = 0
     
+def play_game():
+    global score
+    global direction
+    global next_direction
+    global apple_pos
+    global snake_pos
+    global lastmove
+    global key
+    global current_time
+    global move_del
+    global WIDTH
+    global HEIGHT
+    global GRAY
+    global FPS
+    global FramePerSec
+    global scoretxt
+    global score_text
+    global font_score
+    global screen
     #Screen Setup
-    screen.fill((0, 0, 0))
+    screen.fill((5, 5, 5))
 
     for i in range(0, WIDTH, 20):
         pygame.draw.line(screen, GRAY, (i, 0), (i, HEIGHT), 1)
@@ -59,11 +98,14 @@ while running:
             pygame.draw.rect(screen, (0, 255, 0), (pos[0]+1, pos[1]+1, 18, 18),2, border_radius=3)
         length = length + 1
     
+    #Draw Apple
+    pygame.draw.rect(screen, (255, 0, 0), (apple_pos[0], apple_pos[1], 20, 20), 2, border_radius=3)
+
     #Display Score
     scoretxt = "Score: " + str(score)
-    score_font = pygame.font.SysFont("Arial", 20)
-    score_text = score_font.render(scoretxt, True, (0, 0, 255))
-    screen.blit(score_text, (WIDTH - score_text.get_width() ,HEIGHT - score_text.get_height()))
+    score_text = font_score.render(scoretxt, True, (0, 0, 255))
+    screen.blit(score_text, (WIDTH - score_text.get_width() ,score_text.get_height()-35))
+    
     #AI Decision/User Input
     if pygame.key.get_pressed()[pygame.K_RIGHT]:
         key = "RIGHT"
@@ -77,9 +119,6 @@ while running:
 
     #Snake Head
     new_head = snake_pos[0].copy()
-    
-    #Draw Apple
-    pygame.draw.rect(screen, (255, 0, 0), (apple_pos[0], apple_pos[1], 20, 20), 2, border_radius=3)
 
     #Prevent Snake from going back on itself
     if key == "RIGHT" and direction != "LEFT":
@@ -127,4 +166,15 @@ while running:
     
     pygame.display.update()
     FramePerSec.tick(FPS)
+reset_game()
+game_start()
+while running:
+    # Handle events
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+    current_time = pygame.time.get_ticks()
+    
+
+    play_game()
 pygame.quit()
