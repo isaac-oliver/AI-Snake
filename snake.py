@@ -4,10 +4,12 @@ import random
 from ai import choose_direction
 pygame.init()
 
+#Game Tab Setup
 WIDTH, HEIGHT = 400, 400
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Snake Game")
 
+#Fonts
 font_path = os.path.join(os.path.dirname(__file__), "Anta-Regular.ttf")
 font_title = pygame.font.Font(font_path, 40)
 font_name = pygame.font.Font(font_path,20)
@@ -17,6 +19,8 @@ font_score = pygame.font.Font(font_path, 24)
 font_game_over = pygame.font.Font(font_path, 40)
 font_score_over = pygame.font.Font(font_path, 25)
 font_restart = pygame.font.Font(font_path, 15)
+
+#Variables Setup
 scoretxt=""
 running = True
 FramePerSec = pygame.time.Clock()
@@ -25,7 +29,9 @@ highscore = 0
 restart_game = False
 game_state = "MENU"
 
+#Game Start Menu
 def game_start():
+    #Initialize variables
     global control
     status = True
     text = font_title.render("Snake Game", True, (0, 255, 0))
@@ -35,15 +41,22 @@ def game_start():
     player_ctrl_txt_2 = font_player_ctrl.render("Player Control", True, (0, 255, 0))
     ai_ctrl_txt_1 = font_ai_ctrl.render("AI Control", True, (255, 0, 0))
     ai_ctrl_txt_2 = font_ai_ctrl.render("AI Control", True, (0, 255, 0))
+
+    #Run Menu Loop
     while status:
+        #Check Events
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 exit()
+
+        #Menu Setup
         screen.fill((0, 0, 0))
         screen.blit(text, (WIDTH // 2 - text.get_width() // 2, 150))
         screen.blit(name_text, (WIDTH // 2 - name_text.get_width() // 2, 200))
         screen.blit(game_image, (WIDTH // 2 - game_image.get_width() // 2, 80))
+
+        #Control Selection (Player/AI) 
         player_ctrl = pygame.Rect(WIDTH // 2 - 75, 245, 150, 40)
         ai_ctrl = pygame.Rect(WIDTH // 2 - 75, 290, 150, 40)
         if player_ctrl.collidepoint(pygame.mouse.get_pos()):
@@ -65,14 +78,16 @@ def game_start():
             screen.blit(ai_ctrl_txt_2, (WIDTH // 2 - 75 + 10, 290 + 10))
             pygame.draw.rect(screen, (0, 255, 0), (ai_ctrl), 2, border_radius=5)
         
-
+        #Update Display
         pygame.display.update()
         FramePerSec.tick(FPS)
 
         
         
-        
+#Game Over Menu
 def game_over():
+    #Initialize variables
+    global score
     global highscore
     global game_state
     status = True
@@ -85,14 +100,19 @@ def game_over():
     restart_txt_2 = font_restart.render("Restart", True, (0, 255, 0))
     quit_txt_1 = font_restart.render("Quit", True, (255, 0, 0))
     quit_txt_2 = font_restart.render("Quit", True, (0, 255, 0))
+
+    #Set High Score
     if score > highscore:
         highscore = score
+
+    #Run Menu Loop
     while status:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 exit()
 
+        #Menu Setup and Display "Game Over" Text and Score/High Score
         screen.fill((0, 0, 0))
         text = font_game_over.render("Game Over", True, (255, 0, 0))
         screen.blit(text, (WIDTH // 2 - text.get_width() // 2, HEIGHT // 2 - text.get_height() // 2 - 100))
@@ -100,11 +120,13 @@ def game_over():
         screen.blit(highscore_text, (WIDTH // 2 - highscore_text.get_width() // 2, HEIGHT // 2 + text.get_height() // 2 - 60 ))
         restart_game = pygame.Rect(WIDTH // 2 - 75, 245, 150, 40)
         quit_game = pygame.Rect(WIDTH // 2 - 75, 290, 150, 40)
+
+        #Restart/Quit Buttons Selection
         if restart_game.collidepoint(pygame.mouse.get_pos()):
             pygame.draw.rect(screen, (255, 0, 0), restart_game, 2, border_radius=5)
             screen.blit(restart_txt_1, (WIDTH // 2 - 75 + 10, 245 + 10))
             if pygame.mouse.get_pressed()[0]:
-                # Wait for mouse release so the menu doesn't immediately register the same click
+                # Wait for mouse release so the menu doesn't immediately register the same click (debugging menu state overlap issue)
                 while pygame.mouse.get_pressed()[0]:
                     for ev in pygame.event.get():
                         if ev.type == pygame.QUIT:
@@ -114,9 +136,6 @@ def game_over():
                 reset_game()
                 status = False
                 game_state = "MENU"
-
-                
-
         else:
             screen.blit(restart_txt_2, (WIDTH // 2 - 75 + 10, 245 + 10))
             pygame.draw.rect(screen, (0, 255, 0), restart_game, 2, border_radius=5)
@@ -133,7 +152,7 @@ def game_over():
     
 
 
-
+#Reset Game Variables
 def reset_game():
     global direction
     direction = "RIGHT"
@@ -167,7 +186,7 @@ def reset_game():
     control = "PLAYER"
     
 
-
+#Play Snake Game
 def play_game():
     global score
     global direction
@@ -282,7 +301,6 @@ def play_game():
 
 
 reset_game()
-game_start()
 while running:
     # Handle events
     for event in pygame.event.get():
