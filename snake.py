@@ -14,15 +14,20 @@ font_name = pygame.font.Font(font_path,20)
 font_player_ctrl = pygame.font.Font(font_path, 15)
 font_ai_ctrl = pygame.font.Font(font_path, 15)
 font_score = pygame.font.Font(font_path, 24)
-font_game_over = pygame.font.Font(font_path, 50)
-font_score_over = pygame.font.Font(font_path, 30)
+font_game_over = pygame.font.Font(font_path, 40)
+font_score_over = pygame.font.Font(font_path, 25)
+font_restart = pygame.font.Font(font_path, 15)
 scoretxt=""
 running = True
 FramePerSec = pygame.time.Clock()
 FPS = 60
+highscore = 0
+restart_game = False
+game_state = "MENU"
 
-def game_start(status):
+def game_start():
     global control
+    status = True
     text = font_title.render("Snake Game", True, (0, 255, 0))
     name_text = font_name.render("By: Isaac Oliver", True, (0, 255, 0))
     game_image = pygame.image.load("Snake Game Image.png")
@@ -68,16 +73,66 @@ def game_start(status):
         
         
 def game_over():
-    screen.fill((0, 0, 0))
-    text = font_game_over.render("Game Over", True, (255, 0, 0))
-    screen.blit(text, (WIDTH // 2 - text.get_width() // 2, HEIGHT // 2 - text.get_height() // 2))
-    screentxt = "Final Score: " + str(score)
-    score_text = font_score_over.render(screentxt, True, (255, 255, 255))
-    screen.blit(score_text, (WIDTH // 2 - score_text.get_width() // 2, HEIGHT // 2 + text.get_height() // 2))
-    pygame.display.update()
-    pygame.time.delay(2000)
-    pygame.quit()
-    exit()
+    global highscore
+    global game_state
+    status = True
+    game_over_txt = font_game_over.render("Game Over", True, (255, 0, 0))
+    txt_score = "Final Score: " + str(score)
+    txt_highscore = "High Score: " + str(highscore)
+    score_text = font_score_over.render(txt_score, True, (0, 255, 0))
+    highscore_text = font_score_over.render(txt_highscore, True, (0, 255, 0))
+    restart_txt_1 = font_restart.render("Restart", True, (255, 0, 0))
+    restart_txt_2 = font_restart.render("Restart", True, (0, 255, 0))
+    quit_txt_1 = font_restart.render("Quit", True, (255, 0, 0))
+    quit_txt_2 = font_restart.render("Quit", True, (0, 255, 0))
+    if score > highscore:
+        highscore = score
+    while status:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+
+        screen.fill((0, 0, 0))
+        text = font_game_over.render("Game Over", True, (255, 0, 0))
+        screen.blit(text, (WIDTH // 2 - text.get_width() // 2, HEIGHT // 2 - text.get_height() // 2 - 100))
+        screen.blit(score_text, (WIDTH // 2 - score_text.get_width() // 2, HEIGHT // 2 + text.get_height() // 2 - 90))
+        screen.blit(highscore_text, (WIDTH // 2 - highscore_text.get_width() // 2, HEIGHT // 2 + text.get_height() // 2 - 60 ))
+        restart_game = pygame.Rect(WIDTH // 2 - 75, 245, 150, 40)
+        quit_game = pygame.Rect(WIDTH // 2 - 75, 290, 150, 40)
+        if restart_game.collidepoint(pygame.mouse.get_pos()):
+            pygame.draw.rect(screen, (255, 0, 0), restart_game, 2, border_radius=5)
+            screen.blit(restart_txt_1, (WIDTH // 2 - 75 + 10, 245 + 10))
+            if pygame.mouse.get_pressed()[0]:
+                # Wait for mouse release so the menu doesn't immediately register the same click
+                while pygame.mouse.get_pressed()[0]:
+                    for ev in pygame.event.get():
+                        if ev.type == pygame.QUIT:
+                            pygame.quit()
+                            exit()
+                    FramePerSec.tick(FPS)
+                reset_game()
+                status = False
+                game_state = "MENU"
+
+                
+
+        else:
+            screen.blit(restart_txt_2, (WIDTH // 2 - 75 + 10, 245 + 10))
+            pygame.draw.rect(screen, (0, 255, 0), restart_game, 2, border_radius=5)
+        if quit_game.collidepoint(pygame.mouse.get_pos()):
+            screen.blit(quit_txt_1, (WIDTH // 2 - 75 + 10, 290 + 10))
+            pygame.draw.rect(screen, (255, 0, 0), quit_game, 2, border_radius=5)
+            if pygame.mouse.get_pressed()[0]:
+                pygame.quit()
+                exit()
+        else:
+            screen.blit(quit_txt_2, (WIDTH // 2 - 75 + 10, 290 + 10))
+            pygame.draw.rect(screen, (0, 255, 0), quit_game, 2, border_radius=5)
+        pygame.display.update()
+    
+
+
 
 def reset_game():
     global direction
@@ -111,12 +166,15 @@ def reset_game():
     global control
     control = "PLAYER"
     
+
+
 def play_game():
     global score
     global direction
     global next_direction
     global apple_pos
     global snake_pos
+    global game_state
     global lastmove
     global key
     global current_time
@@ -211,15 +269,20 @@ def play_game():
 
     #Check for Collisions
     if new_head[0] < 0 or new_head[0] >= WIDTH or new_head[1] < 0 or new_head[1] >= HEIGHT:
-        game_over()
+        game_state = "GAME_OVER"
+        return
     for block in snake_pos[1:]:
         if new_head == block:
-            game_over()
+            game_state = "GAME_OVER"
+            return
     
     pygame.display.update()
     FramePerSec.tick(FPS)
+
+
+
 reset_game()
-game_start(status)
+game_start()
 while running:
     # Handle events
     for event in pygame.event.get():
@@ -227,6 +290,12 @@ while running:
             running = False
     current_time = pygame.time.get_ticks()
     
+    if game_state == "MENU":
+        game_start()
+        game_state = "PLAYING"
+    elif game_state == "PLAYING":
+        play_game()
+    elif game_state == "GAME_OVER":
+        game_over()
 
-    play_game()
 pygame.quit()
