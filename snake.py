@@ -10,18 +10,63 @@ pygame.display.set_caption("Snake Game")
 
 font_path = os.path.join(os.path.dirname(__file__), "Anta-Regular.ttf")
 font_title = pygame.font.Font(font_path, 40)
+font_name = pygame.font.Font(font_path,20)
+font_player_ctrl = pygame.font.Font(font_path, 15)
+font_ai_ctrl = pygame.font.Font(font_path, 15)
 font_score = pygame.font.Font(font_path, 24)
 font_game_over = pygame.font.Font(font_path, 50)
 font_score_over = pygame.font.Font(font_path, 30)
 scoretxt=""
 running = True
+FramePerSec = pygame.time.Clock()
+FPS = 60
 
-def game_start():
-    screen.fill((0, 0, 0))
+def game_start(status):
+    global control
     text = font_title.render("Snake Game", True, (0, 255, 0))
-    screen.blit(text, (WIDTH // 2 - text.get_width() // 2, HEIGHT // 2 - text.get_height() // 2))
-    pygame.display.update()
-    pygame.time.delay(5000)
+    name_text = font_name.render("By: Isaac Oliver", True, (0, 255, 0))
+    game_image = pygame.image.load("Snake Game Image.png")
+    player_ctrl_txt_1 = font_player_ctrl.render("Player Control", True, (255, 0, 0))
+    player_ctrl_txt_2 = font_player_ctrl.render("Player Control", True, (0, 255, 0))
+    ai_ctrl_txt_1 = font_ai_ctrl.render("AI Control", True, (255, 0, 0))
+    ai_ctrl_txt_2 = font_ai_ctrl.render("AI Control", True, (0, 255, 0))
+    while status:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+        screen.fill((0, 0, 0))
+        screen.blit(text, (WIDTH // 2 - text.get_width() // 2, 150))
+        screen.blit(name_text, (WIDTH // 2 - name_text.get_width() // 2, 200))
+        screen.blit(game_image, (WIDTH // 2 - game_image.get_width() // 2, 80))
+        player_ctrl = pygame.Rect(WIDTH // 2 - 75, 245, 150, 40)
+        ai_ctrl = pygame.Rect(WIDTH // 2 - 75, 290, 150, 40)
+        if player_ctrl.collidepoint(pygame.mouse.get_pos()):
+            pygame.draw.rect(screen, (255, 0, 0), player_ctrl, 2, border_radius=5)
+            screen.blit(player_ctrl_txt_1, (WIDTH // 2 - 75 + 10, 245 + 10))
+            if pygame.mouse.get_pressed()[0]:
+                control = "PLAYER"
+                status = False
+        else:
+            screen.blit(player_ctrl_txt_2, (WIDTH // 2 - 75 + 10, 245 + 10))
+            pygame.draw.rect(screen, (0, 255, 0), player_ctrl, 2, border_radius=5)
+        if ai_ctrl.collidepoint(pygame.mouse.get_pos()):
+            screen.blit(ai_ctrl_txt_1, (WIDTH // 2 - 75 + 10, 290 + 10))
+            pygame.draw.rect(screen, (255, 0, 0), (ai_ctrl), 2, border_radius=5)
+            if pygame.mouse.get_pressed()[0]:
+                control = "AI"
+                status = False
+        else:
+            screen.blit(ai_ctrl_txt_2, (WIDTH // 2 - 75 + 10, 290 + 10))
+            pygame.draw.rect(screen, (0, 255, 0), (ai_ctrl), 2, border_radius=5)
+        
+
+        pygame.display.update()
+        FramePerSec.tick(FPS)
+
+        
+        
+        
 def game_over():
     screen.fill((0, 0, 0))
     text = font_game_over.render("Game Over", True, (255, 0, 0))
@@ -61,6 +106,10 @@ def reset_game():
     FPS = 60
     global score
     score = 0
+    global status
+    status = True
+    global control
+    control = "PLAYER"
     
 def play_game():
     global score
@@ -107,15 +156,18 @@ def play_game():
     screen.blit(score_text, (WIDTH - score_text.get_width() ,score_text.get_height()-35))
     
     #AI Decision/User Input
-    if pygame.key.get_pressed()[pygame.K_RIGHT]:
-        key = "RIGHT"
-    elif pygame.key.get_pressed()[pygame.K_LEFT]:
-        key = "LEFT"
-    elif pygame.key.get_pressed()[pygame.K_UP]:
-        key = "UP"
-    elif pygame.key.get_pressed()[pygame.K_DOWN]:
-        key = "DOWN"
-    #key = choose_direction(snake_pos,snake_pos[0], apple_pos,direction,WIDTH,HEIGHT)
+    if control == "AI":
+        key = choose_direction(snake_pos,snake_pos[0], apple_pos,direction,WIDTH,HEIGHT)
+    else:
+        if pygame.key.get_pressed()[pygame.K_RIGHT]:
+            key = "RIGHT"
+        elif pygame.key.get_pressed()[pygame.K_LEFT]:
+            key = "LEFT"
+        elif pygame.key.get_pressed()[pygame.K_UP]:
+            key = "UP"
+        elif pygame.key.get_pressed()[pygame.K_DOWN]:
+            key = "DOWN"
+    
 
     #Snake Head
     new_head = snake_pos[0].copy()
@@ -167,7 +219,7 @@ def play_game():
     pygame.display.update()
     FramePerSec.tick(FPS)
 reset_game()
-game_start()
+game_start(status)
 while running:
     # Handle events
     for event in pygame.event.get():
