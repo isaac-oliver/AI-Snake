@@ -1,8 +1,16 @@
 import os
+import sys
 import pygame # type: ignore
 import random
-from ai import choose_direction
+
+# Add parent directory to path to import Agents
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from Agents.random import Agent
 pygame.init()
+
+#Initialize AI Agent
+agent = Agent(width=20, height=20)
 
 #Game Tab Setup
 WIDTH, HEIGHT = 400, 400
@@ -10,7 +18,7 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Snake Game")
 
 #Fonts
-font_path = os.path.join(os.path.dirname(__file__), "Anta-Regular.ttf")
+font_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "Anta-Regular.ttf")
 font_title = pygame.font.Font(font_path, 40)
 font_name = pygame.font.Font(font_path,20)
 font_player_ctrl = pygame.font.Font(font_path, 15)
@@ -36,7 +44,7 @@ def game_start():
     status = True
     text = font_title.render("Snake Game", True, (0, 255, 0))
     name_text = font_name.render("By: Isaac Oliver", True, (0, 255, 0))
-    game_image = pygame.image.load("Snake Game Image.png")
+    game_image = pygame.image.load(os.path.join(os.path.dirname(os.path.dirname(__file__)), "Snake Game Image.png"))
     player_ctrl_txt_1 = font_player_ctrl.render("Player Control", True, (255, 0, 0))
     player_ctrl_txt_2 = font_player_ctrl.render("Player Control", True, (0, 255, 0))
     ai_ctrl_txt_1 = font_ai_ctrl.render("AI Control", True, (255, 0, 0))
@@ -186,6 +194,22 @@ def reset_game():
     control = "PLAYER"
     
 
+#Get AI direction
+def get_ai_direction(snake_pos, head_pos, apple_pos, direction, width, height):
+    """Convert the game state to the agent's format and get its decision"""
+    # Convert pixel coordinates to grid coordinates
+    snake_grid = [[x // 20, y // 20] for x, y in snake_pos]
+    apple_grid = [apple_pos[0] // 20, apple_pos[1] // 20]
+    
+    state = {
+        'snake': snake_grid,
+        'apple': apple_grid,
+        'width': width // 20,  # Convert to grid coordinates
+        'height': height // 20
+    }
+    return agent.get_action(state)
+
+
 #Play Snake Game
 def play_game():
     global score
@@ -234,7 +258,7 @@ def play_game():
     
     #AI Decision/User Input
     if control == "AI":
-        key = choose_direction(snake_pos,snake_pos[0], apple_pos,direction,WIDTH,HEIGHT)
+        key = get_ai_direction(snake_pos, snake_pos[0], apple_pos, direction, WIDTH, HEIGHT)
     else:
         if pygame.key.get_pressed()[pygame.K_RIGHT]:
             key = "RIGHT"

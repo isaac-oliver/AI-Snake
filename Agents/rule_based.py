@@ -1,4 +1,12 @@
-def choose_direction(snake_pos,snake_head,apple_pos,direction,width,height):
+
+
+def choose_direction(snake):
+    snake_pos = snake.snake_pos
+    snake_head = snake.snake_pos[0]
+    apple_pos = snake.apple_pos
+    direction = snake.direction
+    width = 400
+    height = 400
     if check_collision(snake_pos,snake_head,direction) != False:
         return check_collision(snake_pos,snake_head,direction)
     else:
