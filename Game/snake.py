@@ -6,7 +6,13 @@ import random
 # Add parent directory to path to import Agents
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from Agents.rule_based import choose_direction
+from Agents.rule_based import choose_direction as choose_direction_rb
+from Agents.random import choose_direction as choose_direction_random
+from Agents.a_star import choose_direction as choose_direction_a_star
+from Agents.heuristic import choose_direction as choose_direction_hueristic
+from Agents.hamiltonian import choose_direction as choose_direction_hamiltonian
+from Agents.q_learning import choose_direction as choose_direction_q_learning
+from Agents.deep_q import choose_direction as choose_direction_deep_q
 pygame.init()
 
 #Game Tab Setup
@@ -81,7 +87,7 @@ class Game:
     
         #AI Decision/User Input
         if self.control == "AI":
-            self.key = choose_direction(self)
+            self.key = choose_direction_rb(self)
         else:
             if pygame.key.get_pressed()[pygame.K_RIGHT]:
                 self.key = "RIGHT"
@@ -161,11 +167,26 @@ class Game:
 
         #Run Menu Loop
         while status:
+            mouse_pos = pygame.mouse.get_pos()
+
+            #Control Selection (Player/AI)
+            player_ctrl = pygame.Rect(WIDTH // 2 - 75, 245, 150, 40)
+            ai_ctrl = pygame.Rect(WIDTH // 2 - 75, 290, 150, 40)
+
             #Check Events
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     exit()
+                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    if player_ctrl.collidepoint(event.pos):
+                        self.control = "PLAYER"
+                        self.game_state = "PLAYING"
+                        status = False
+                    elif ai_ctrl.collidepoint(event.pos):
+                        self.control = "AI"
+                        self.game_state = "AI MENU"
+                        status = False
 
             #Menu Setup
             screen.fill((0, 0, 0))
@@ -173,24 +194,15 @@ class Game:
             screen.blit(name_text, (WIDTH // 2 - name_text.get_width() // 2, 200))
             screen.blit(game_image, (WIDTH // 2 - game_image.get_width() // 2, 80))
 
-            #Control Selection (Player/AI) 
-            player_ctrl = pygame.Rect(WIDTH // 2 - 75, 245, 150, 40)
-            ai_ctrl = pygame.Rect(WIDTH // 2 - 75, 290, 150, 40)
-            if player_ctrl.collidepoint(pygame.mouse.get_pos()):
+            if player_ctrl.collidepoint(mouse_pos):
                 pygame.draw.rect(screen, (255, 0, 0), player_ctrl, 2, border_radius=5)
                 screen.blit(player_ctrl_txt_1, (WIDTH // 2 - 75 + 10, 245 + 10))
-                if pygame.mouse.get_pressed()[0]:
-                    self.control = "PLAYER"
-                    status = False
             else:
                 screen.blit(player_ctrl_txt_2, (WIDTH // 2 - 75 + 10, 245 + 10))
                 pygame.draw.rect(screen, (0, 255, 0), player_ctrl, 2, border_radius=5)
-            if ai_ctrl.collidepoint(pygame.mouse.get_pos()):
+            if ai_ctrl.collidepoint(mouse_pos):
                 screen.blit(ai_ctrl_txt_1, (WIDTH // 2 - 75 + 10, 290 + 10))
                 pygame.draw.rect(screen, (255, 0, 0), (ai_ctrl), 2, border_radius=5)
-                if pygame.mouse.get_pressed()[0]:
-                    self.control = "AI"
-                    status = False
             else:
                 screen.blit(ai_ctrl_txt_2, (WIDTH // 2 - 75 + 10, 290 + 10))
                 pygame.draw.rect(screen, (0, 255, 0), (ai_ctrl), 2, border_radius=5)
@@ -199,7 +211,127 @@ class Game:
             pygame.display.update()
             FramePerSec.tick(self.FPS)
 
-        
+    #AI Selection Menu
+    def ai_menu(self):
+        #Initialize variables
+        status = True
+        title = font_title.render("AI Selection", True, (0, 255, 0))
+        rule_based_txt_1 = font_player_ctrl.render("Rule Based", True, (255, 0, 0))
+        rule_based_txt_2 = font_player_ctrl.render("Rule Based", True, (0, 255, 0))
+        random_txt_1 = font_player_ctrl.render("Random", True, (255, 0, 0))
+        random_txt_2 = font_player_ctrl.render("Random", True, (0, 255, 0))
+        hamiltonian_txt_1 = font_player_ctrl.render("Hamiltonian", True, (255, 0, 0))
+        hamiltonian_txt_2 = font_player_ctrl.render("Hamiltonian", True, (0, 255, 0))
+        heuristic_txt_1 = font_player_ctrl.render("Heuristic", True, (255, 0, 0))
+        heuristic_txt_2 = font_player_ctrl.render("Heuristic", True, (0, 255, 0))
+        a_star_txt_1 = font_player_ctrl.render("A*", True, (255, 0, 0))
+        a_star_txt_2 = font_player_ctrl.render("A*", True, (0, 255, 0))
+        q_learning_txt_1 = font_player_ctrl.render("Q-Learning", True, (255, 0, 0))
+        q_learning_txt_2 = font_player_ctrl.render("Q-Learning", True, (0, 255, 0))
+        deep_q_txt_1 = font_player_ctrl.render("Deep Q-Learning", True, (255, 0, 0))
+        deep_q_txt_2 = font_player_ctrl.render("Deep Q-Learning", True, (0, 255, 0))
+
+        #Run Menu Loop
+        while status:
+            mouse_pos = pygame.mouse.get_pos()
+
+            #AI Selection Buttons
+            rule_based = pygame.Rect(WIDTH // 2 -155, 130, 150, 40)
+            random_ai = pygame.Rect(WIDTH // 2 - 155, 175, 150, 40)
+            hamiltonian_ai = pygame.Rect(WIDTH // 2 - 155, 220, 150, 40)
+            heuristic_ai = pygame.Rect(WIDTH // 2 + 5, 130, 150, 40)
+            a_star_ai = pygame.Rect(WIDTH // 2 + 5, 175, 150, 40)
+            q_learning_ai = pygame.Rect(WIDTH // 2 + 5, 220, 150, 40)
+            deep_q_ai = pygame.Rect(WIDTH // 2 - 75, 265, 150, 40)
+
+            #Check Events
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    exit()
+                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    if rule_based.collidepoint(event.pos):
+                        self.control = "RULE BASED"
+                        self.game_state = "PLAYING"
+                        status = False
+                    elif random_ai.collidepoint(event.pos):
+                        self.control = "RANDOM"
+                        self.game_state = "PLAYING"
+                        status = False
+                    elif hamiltonian_ai.collidepoint(event.pos):
+                        self.control = "HAMILTONIAN"
+                        self.game_state = "PLAYING"
+                        status = False
+                    elif heuristic_ai.collidepoint(event.pos):
+                        self.control = "HEURISTIC"
+                        self.game_state = "PLAYING"
+                        status = False
+                    elif a_star_ai.collidepoint(event.pos):
+                        self.control = "A*"
+                        self.game_state = "PLAYING"
+                        status = False
+                    elif q_learning_ai.collidepoint(event.pos):
+                        self.control = "Q-LEARNING"
+                        self.game_state = "PLAYING"
+                        status = False
+                    elif deep_q_ai.collidepoint(event.pos):
+                        self.control = "DEEP Q-LEARNING"
+                        self.game_state = "PLAYING"
+                        status = False
+
+            #Menu Setup
+            screen.fill((0, 0, 0))
+            screen.blit(title, (WIDTH // 2 - title.get_width() // 2, 60))
+
+            if rule_based.collidepoint(mouse_pos):
+                pygame.draw.rect(screen, (255, 0, 0), rule_based, 2, border_radius=5)
+                screen.blit(rule_based_txt_1, (WIDTH // 2 - 155 + 10, 130 + 10))
+            else:
+                screen.blit(rule_based_txt_2, (WIDTH // 2 - 155 + 10, 130 + 10))
+                pygame.draw.rect(screen, (0, 255, 0), rule_based, 2, border_radius=5)
+            if random_ai.collidepoint(mouse_pos):
+                pygame.draw.rect(screen, (255, 0, 0), random_ai, 2, border_radius=5)
+                screen.blit(random_txt_1, (WIDTH // 2 - 155 + 10, 175 + 10))
+            else:
+                screen.blit(random_txt_2, (WIDTH // 2 - 155 + 10, 175 + 10))
+                pygame.draw.rect(screen, (0, 255, 0), random_ai, 2, border_radius=5)
+            if hamiltonian_ai.collidepoint(mouse_pos):
+                pygame.draw.rect(screen, (255, 0, 0), hamiltonian_ai, 2, border_radius=5)
+                screen.blit(hamiltonian_txt_1, (WIDTH // 2 - 155 + 10, 220 + 10))
+            else:
+                screen.blit(hamiltonian_txt_2, (WIDTH // 2 - 155 + 10, 220 + 10))
+                pygame.draw.rect(screen, (0, 255, 0), hamiltonian_ai, 2, border_radius=5)
+            if heuristic_ai.collidepoint(mouse_pos):
+                pygame.draw.rect(screen, (255, 0, 0), heuristic_ai, 2, border_radius=5)
+                screen.blit(heuristic_txt_1, (WIDTH // 2 + 5 + 10, 130 + 10))
+            else:
+                screen.blit(heuristic_txt_2, (WIDTH // 2 + 5 + 10, 130 + 10))
+                pygame.draw.rect(screen, (0, 255, 0), heuristic_ai, 2, border_radius=5)
+            if a_star_ai.collidepoint(mouse_pos):
+                pygame.draw.rect(screen, (255, 0, 0), a_star_ai, 2, border_radius=5)
+                screen.blit(a_star_txt_1, (WIDTH // 2 + 5 + 10, 175 + 10))
+            else:
+                screen.blit(a_star_txt_2, (WIDTH // 2 + 5 + 10, 175 + 10))
+                pygame.draw.rect(screen, (0, 255, 0), a_star_ai, 2, border_radius=5)
+            if q_learning_ai.collidepoint(mouse_pos):
+                pygame.draw.rect(screen, (255, 0, 0), q_learning_ai, 2, border_radius=5)
+                screen.blit(q_learning_txt_1, (WIDTH // 2 + 5 + 10, 220 + 10))
+            else:
+                screen.blit(q_learning_txt_2, (WIDTH // 2 + 5 + 10, 220 + 10))
+                pygame.draw.rect(screen, (0, 255, 0), q_learning_ai, 2, border_radius=5)
+            if deep_q_ai.collidepoint(mouse_pos):
+                pygame.draw.rect(screen, (255, 0, 0), deep_q_ai, 2, border_radius=5)
+                screen.blit(deep_q_txt_1, (WIDTH // 2 - 75 + 10, 265 + 10))
+            else:
+                screen.blit(deep_q_txt_2, (WIDTH // 2 - 75 + 10, 265 + 10))
+                pygame.draw.rect(screen, (0, 255, 0), deep_q_ai, 2, border_radius=5)
+
+            pygame.display.update()
+            FramePerSec.tick(self.FPS)
+
+
+
+
         
     #Game Over Menu
     def game_over(self):
@@ -277,10 +409,11 @@ while running:
     
     if game.game_state == "MENU":
         Game.game_start(game)
-        game.game_state = "PLAYING"
     elif game.game_state == "PLAYING":
         Game.play_game(game)
     elif game.game_state == "GAME_OVER":
         Game.game_over(game)
+    elif game.game_state == "AI MENU":
+        Game.ai_menu(game)
 
 pygame.quit()
