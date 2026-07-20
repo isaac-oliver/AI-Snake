@@ -86,8 +86,20 @@ class Game:
         screen.blit(score_text, (WIDTH - score_text.get_width() ,score_text.get_height()-35))
     
         #AI Decision/User Input
-        if self.control == "AI":
+        if self.control == "RULE BASED":
             self.key = choose_direction_rb(self)
+        elif self.control == "RANDOM":
+            self.key = choose_direction_random(self)
+        elif self.control == "HAMILTONIAN":
+            self.key = choose_direction_hamiltonian(self)
+        elif self.control == "A*":
+            self.key = choose_direction_a_star(self)
+        elif self.control == "HUERISTIC":
+            self.key = choose_direction_hueristic(self)
+        elif self.control == "Q-LEARNING":
+            self.key = choose_direction_q_learning(self)
+        elif self.control == "DEEP Q-LEARNING":
+            self.key = choose_direction_deep_q(self)
         else:
             if pygame.key.get_pressed()[pygame.K_RIGHT]:
                 self.key = "RIGHT"
