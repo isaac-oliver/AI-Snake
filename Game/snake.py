@@ -52,7 +52,7 @@ class Game:
         self.snake_pos = [[100, 300],[80, 300],[60, 300]]
         self.apple_pos = [200,300]
         self.key = "RIGHT"
-        self.move_del = 50
+        self.move_del = 1
         self.lastmove = 0
         self.current_time = 0
         self.FPS = 60
@@ -144,10 +144,12 @@ class Game:
                 self.score = self.score + 1
 
                 #Generate New Apple Position
-                self.apple_pos = [random.randint(0, (WIDTH - 20) // 20) * 20, random.randint(0, (HEIGHT - 20) // 20) * 20]
-                for block in self.snake_pos:
-                    if self.apple_pos == block:
-                        self.apple_pos = [random.randint(0, (WIDTH - 20) // 20) * 20, random.randint(0, (HEIGHT - 20) // 20) * 20]
+                while True:
+                    self.apple_pos = [random.randint(0, (WIDTH - 20) // 20) * 20,
+                            random.randint(0, (HEIGHT - 20) // 20) * 20]
+
+                    if self.apple_pos not in self.snake_pos:
+                        break
             else:
                 self.snake_pos.pop()
 
