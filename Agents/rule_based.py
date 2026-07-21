@@ -1,5 +1,3 @@
-
-
 def choose_direction(snake):
     snake_pos = snake.snake_pos
     snake_head = snake.snake_pos[0]
@@ -52,8 +50,6 @@ def check_collision(snake_pos,snake_head,direction):
                     return "DOWN"
                 else:
                     return "UP"
-            else:
-                return False    
     elif direction == "LEFT":
         for block in snake_pos[1:]:
             if snake_head[0] - 20 == block[0] and snake_head[1] == block[1]:
@@ -61,8 +57,6 @@ def check_collision(snake_pos,snake_head,direction):
                     return "DOWN"
                 else:
                     return "UP"
-            else:
-                return False
     elif direction == "UP":
         for block in snake_pos[1:]:
             if snake_head[0] == block[0] and snake_head[1] - 20 == block[1]:
@@ -70,8 +64,6 @@ def check_collision(snake_pos,snake_head,direction):
                     return "RIGHT"
                 else:
                     return "LEFT"
-            else:
-                return False
     elif direction == "DOWN":
         for block in snake_pos[1:]:
             if snake_head[0] == block[0] and snake_head[1] + 20 == block[1]:
@@ -79,8 +71,8 @@ def check_collision(snake_pos,snake_head,direction):
                     return "RIGHT"
                 else:
                     return "LEFT"
-            else:
-                return False
+    return False
+
 
     
     
