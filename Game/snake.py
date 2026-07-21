@@ -52,7 +52,7 @@ class Game:
         self.snake_pos = [[100, 300],[80, 300],[60, 300]]
         self.apple_pos = [200,300]
         self.key = "RIGHT"
-        self.move_del = 200
+        self.move_del = 50
         self.lastmove = 0
         self.current_time = 0
         self.FPS = 60
