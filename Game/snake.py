@@ -9,7 +9,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from Agents.rule_based import choose_direction as choose_direction_rb
 from Agents.random import choose_direction as choose_direction_random
 from Agents.a_star import choose_direction as choose_direction_a_star
-from Agents.heuristic import choose_direction as choose_direction_hueristic
+from Agents.heuristic import choose_direction as choose_direction_heuristic
 from Agents.hamiltonian import choose_direction as choose_direction_hamiltonian
 from Agents.q_learning import choose_direction as choose_direction_q_learning
 from Agents.deep_q import choose_direction as choose_direction_deep_q
@@ -52,7 +52,7 @@ class Game:
         self.snake_pos = [[100, 300],[80, 300],[60, 300]]
         self.apple_pos = [200,300]
         self.key = "RIGHT"
-        self.move_del = 50
+        self.move_del = 25
         self.lastmove = 0
         self.current_time = 0
         self.FPS = 60
@@ -94,8 +94,8 @@ class Game:
             self.key = choose_direction_hamiltonian(self)
         elif self.control == "A*":
             self.key = choose_direction_a_star(self)
-        elif self.control == "HUERISTIC":
-            self.key = choose_direction_hueristic(self)
+        elif self.control == "HEURISTIC":
+            self.key = choose_direction_heuristic(self)
         elif self.control == "Q-LEARNING":
             self.key = choose_direction_q_learning(self)
         elif self.control == "DEEP Q-LEARNING":
