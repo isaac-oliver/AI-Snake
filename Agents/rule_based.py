@@ -1,10 +1,14 @@
 import random
+#Choose Direction Function
 def choose_direction(snake):
+    #Initiate Variables
     snake_head = snake.snake_pos[0]
     apple_pos = snake.apple_pos
     width = 400
     height = 400
     legal_moves = []
+
+    #Add Legal Moves to List
     if canright(snake,width):
         legal_moves.append("RIGHT")
     if canleft(snake):
@@ -14,8 +18,11 @@ def choose_direction(snake):
     if candown(snake,height):
         legal_moves.append("DOWN")
 
+    #Return Previous Direction If No Legal Moves
     if not legal_moves:
         return snake.direction
+    
+    #Return Legal Moves
     for move in legal_moves:
         if move == "RIGHT":
             if snake_head[0] < apple_pos[0]:
@@ -35,7 +42,7 @@ def choose_direction(snake):
     else:
         return random.choice(legal_moves)          
     
-
+#Is Right a Legal Move?
 def canright(game,width):
     snake_head = game.snake_pos[0]
     for block in game.snake_pos[1:]:
@@ -48,6 +55,7 @@ def canright(game,width):
     else:
         return True
 
+#Is Left a Legal Move?
 def canleft(game):
     snake_head = game.snake_pos[0]
     for block in game.snake_pos[1:]:
@@ -59,7 +67,8 @@ def canleft(game):
         return False
     else: 
         return True
-        
+
+#Is Up a Legal Move?
 def canup(game):
     snake_head = game.snake_pos[0]
     for block in game.snake_pos[1:]:
@@ -71,7 +80,8 @@ def canup(game):
         return False
     else:
         return True
-    
+
+#Is Down a Legal Move?
 def candown(game,height):
     snake_head = game.snake_pos[0]
     for block in game.snake_pos[1:]:
