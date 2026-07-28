@@ -8,7 +8,10 @@ def choose_direction(snake):
     best_score = float('-inf')
     best_move = ''
     for move in legal_moves:
-        score = move_score(snake,move)
+        if not can_reach_tail(snake,new_head(snake,move)):
+            score = escape_score(snake,move)
+        else:
+            score = move_score(snake,move)
         if score > best_score:
             best_score = score
             best_move = move
@@ -85,8 +88,21 @@ def candown(game,height):
 
 #Calculate Score
 def move_score(snake,move):
-    score = (distance_score(snake,move) + space_score(snake,move))
+    space = space_score(snake,move)
+    if space < len(snake.snake_pos):
+        trap_penalty = -100
+    else:
+        trap_penalty = 0
+    score = (distance_score(snake,move) + space*3)
     return score
+
+def escape_score(snake,move):
+    score = 0
+    if move == "UP" or move == "DOWN":
+        score += 400
+    score += space_score(snake,move)
+    return score
+
 
 #Score Based on Distance From Apple
 def distance_score(snake,move):
@@ -102,10 +118,7 @@ def distance_score(snake,move):
         distance = abs(snake_head[0] - snake.apple_pos[0]) + abs(snake_head[1] + 20 - snake.apple_pos[1])    
     return -distance
 
-#Score Based on How Much Space There is to Move a Certain Direction
-def space_score(snake,move):
-    #Calculate a New Head According to Possible Direction
-    score = 0
+def new_head(snake,move):
     snake_head = snake.snake_pos[0]
     if move == "RIGHT":
         new_head = [snake_head[0] + 20 , snake_head[1]]
@@ -115,9 +128,16 @@ def space_score(snake,move):
         new_head = [snake_head[0] , snake_head[1] - 20]
     elif move == "DOWN":
         new_head = [snake_head[0] , snake_head[1] + 20]
+    return new_head
+
+#Score Based on How Much Space There is to Move a Certain Direction
+def space_score(snake,move):
+    #Calculate a New Head According to Possible Direction
+    score = 0
+    snake_head = snake.snake_pos[0]
 
     #Call Flood Function with New Head
-    return flood_fill(snake,new_head)
+    return flood_fill(snake,new_head(snake,move))
 
 def flood_fill(snake, new_head):
     #Initiate Lists
@@ -154,3 +174,29 @@ def check_in_board(pos):
         return False
     else:
         return True
+
+def can_reach_tail(snake, snake_head):
+    queue = [snake_head]
+    visited = []
+    while queue:
+        current = queue.pop(0)
+        if current in visited:
+            continue
+        if not check_in_board(current):
+            continue
+        if current in snake.snake_pos[:-1]:
+            continue
+        if current == snake.snake_pos[-1]:
+            return True
+        visited.append(current)
+        x = current[0]
+        y = current[1]
+        neighbors = [[x+20,y],[x-20,y],[x,y-20],[x,y+20]]
+        for neighbor in neighbors:
+            if neighbor not in visited:
+                if neighbor not in snake.snake_pos[:-1]:
+                    if check_in_board(neighbor):
+                        queue.append(neighbor)
+    return False
+
+        

@@ -58,6 +58,7 @@ class Game:
         self.FPS = 60
         self.control = "PLAYER"
         self.game_state = "MENU"
+        self.need_escape = False
 
     def play_game(self):
         #Screen Setup
