@@ -8,7 +8,7 @@ def choose_direction(snake):
     best_score = float('-inf')
     best_move = ''
     for move in legal_moves:
-        if not can_reach_tail(snake,new_head(snake,move)):
+        if not can_reach_tail_or_apple(snake,new_head(snake,move)):
             score = escape_score(snake,move)
         else:
             score = move_score(snake,move)
@@ -93,14 +93,18 @@ def move_score(snake,move):
         trap_penalty = -100
     else:
         trap_penalty = 0
-    score = (distance_score(snake,move) + space*3)
+    score = (distance_score(snake,move) + space*5)
     return score
 
 def escape_score(snake,move):
     score = 0
-    if move == "UP" or move == "DOWN":
-        score += 400
-    score += space_score(snake,move)
+    if body_wall(snake) == "VERTICAL":
+        if move == "RIGHT" or move == "LEFT":
+            score += 200
+    elif body_wall(snake) == "HORIZONTAL":
+        if move == "UP" or move == "DOWN":
+            score += 200
+    score += space_score(snake,move)*7
     return score
 
 
@@ -175,7 +179,7 @@ def check_in_board(pos):
     else:
         return True
 
-def can_reach_tail(snake, snake_head):
+def can_reach_tail_or_apple(snake, snake_head):
     queue = [snake_head]
     visited = []
     while queue:
@@ -188,6 +192,8 @@ def can_reach_tail(snake, snake_head):
             continue
         if current == snake.snake_pos[-1]:
             return True
+        if current == snake.apple_pos:
+            return True
         visited.append(current)
         x = current[0]
         y = current[1]
@@ -199,4 +205,25 @@ def can_reach_tail(snake, snake_head):
                         queue.append(neighbor)
     return False
 
+def body_wall(snake):
+    max_x = 0
+    max_y = 0
+    min_x = 0
+    min_y = 0
+    for pos in snake.snake_pos:
+        if pos[0] > max_x:
+            max_x = pos[0]
+        if pos[0] < min_x:
+            min_x = pos[0]
+    for pos in snake.snake_pos:
+        if pos[1] > max_y:
+            max_y = pos[1]
+        if pos[1] < min_y:
+            min_y = pos[1]
         
+    width = max_x - min_x
+    height = max_y - min_y
+    if width < height:
+        return "VERTICAL"
+    else:
+        return "HORIZONTAL"
