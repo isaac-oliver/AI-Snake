@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 #Choose Direction Function
 def choose_direction(snake):
     #Get Legal Moves
@@ -7,11 +9,11 @@ def choose_direction(snake):
     #Determine Best Move Using Heuristics
     best_score = float('-inf')
     best_move = ''
+    
+
     for move in legal_moves:
-        if not can_reach_tail_or_apple(snake,new_head(snake,move)):
-            score = escape_score(snake,move)
-        else:
-            score = move_score(snake,move)
+        future = simulate_move(snake,move)
+        score = lookahead(future,depth = 2)
         if score > best_score:
             best_score = score
             best_move = move
@@ -86,6 +88,13 @@ def candown(game,height):
     else: 
         return True
 
+def evaluate_move(snake):
+    if not can_reach_tail_or_apple(snake,new_head(snake,move)):
+        score = escape_score(snake,move)
+    else:
+        score = move_score(snake,move)
+    return score
+        
 #Calculate Score
 def move_score(snake,move):
     space = space_score(snake,move)
@@ -93,9 +102,10 @@ def move_score(snake,move):
         trap_penalty = -100
     else:
         trap_penalty = 0
-    score = (distance_score(snake,move) + space*5)
+    score = (distance_score(snake,move) + space*7 + trap_penalty)
     return score
 
+#Gives Score During Escape Mode
 def escape_score(snake,move):
     score = 0
     if body_wall(snake) == "VERTICAL":
@@ -122,6 +132,7 @@ def distance_score(snake,move):
         distance = abs(snake_head[0] - snake.apple_pos[0]) + abs(snake_head[1] + 20 - snake.apple_pos[1])    
     return -distance
 
+#Calculates the New Head Position Based on the Move
 def new_head(snake,move):
     snake_head = snake.snake_pos[0]
     if move == "RIGHT":
@@ -136,10 +147,6 @@ def new_head(snake,move):
 
 #Score Based on How Much Space There is to Move a Certain Direction
 def space_score(snake,move):
-    #Calculate a New Head According to Possible Direction
-    score = 0
-    snake_head = snake.snake_pos[0]
-
     #Call Flood Function with New Head
     return flood_fill(snake,new_head(snake,move))
 
@@ -179,9 +186,11 @@ def check_in_board(pos):
     else:
         return True
 
+#Checks if the Snake is Trapped
 def can_reach_tail_or_apple(snake, snake_head):
     queue = [snake_head]
     visited = []
+    #Flood Fill Check
     while queue:
         current = queue.pop(0)
         if current in visited:
@@ -190,8 +199,10 @@ def can_reach_tail_or_apple(snake, snake_head):
             continue
         if current in snake.snake_pos[:-1]:
             continue
+        #Returns True if Tail is Found
         if current == snake.snake_pos[-1]:
             return True
+        #Returns True if Apple is Found
         if current == snake.apple_pos:
             return True
         visited.append(current)
@@ -205,6 +216,7 @@ def can_reach_tail_or_apple(snake, snake_head):
                         queue.append(neighbor)
     return False
 
+#Checks if Snake is Trapped Vertically or Horizontally
 def body_wall(snake):
     max_x = 0
     max_y = 0
@@ -227,3 +239,29 @@ def body_wall(snake):
         return "VERTICAL"
     else:
         return "HORIZONTAL"
+
+#Simulates the Board After a Certain Move
+def simulate_move(snake,move):
+    future = deepcopy(snake)
+    future.direction = move
+    future.snake_pos.insert(0,new_head(future,move))
+    if future.snake_pos[0] == future.apple_pos:
+        future.apple_pos = future.next_apple_pos
+    else:
+        future.snake_pos.pop()
+    return future
+
+#
+def lookahead(snake,depth):
+    if depth == 0:
+        return evaluate_move(snake)
+    legal_moves = get_legal_moves(snake)
+    if not legal_moves:
+        return move_score(snake,snake.direction)
+    best_score = float('-inf')
+    for move in legal_moves:
+        future = simulate_move(snake,move)
+        score = lookahead(future,depth-1)
+        if score > best_score:
+            best_score = score
+    return best_score
