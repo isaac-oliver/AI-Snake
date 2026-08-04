@@ -17,7 +17,7 @@ pygame.init()
 
 #Game Tab Setup
 WIDTH, HEIGHT = 400, 400
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
+screen = None
 pygame.display.set_caption("Snake Game")
 
 #Fonts
@@ -51,8 +51,6 @@ class Game:
         self.next_direction = "RIGHT"
         self.snake_pos = [[100, 300],[80, 300],[60, 300]]
         self.apple_pos = [200,300]
-        self.next_apple_pos = [random.randint(0, (WIDTH - 20) // 20) * 20,
-        random.randint(0, (HEIGHT - 20) // 20) * 20]
         self.key = "RIGHT"
         self.move_del = 25
         self.lastmove = 0
@@ -63,15 +61,17 @@ class Game:
         self.need_escape = False
         self.escape_mode = False
         self.escape_axis = None
+        self.height = HEIGHT
+        self.width = WIDTH
 
     def play_game(self):
         #Screen Setup
         screen.fill((5, 5, 5))
         self.current_time = pygame.time.get_ticks()
-        for i in range(0, WIDTH, 20):
-            pygame.draw.line(screen, gray, (i, 0), (i, HEIGHT), 1)
-        for i in range(0, HEIGHT, 20):
-            pygame.draw.line(screen, gray, (0, i), (WIDTH, i), 1)
+        for i in range(0, self.width, 20):
+            pygame.draw.line(screen, gray, (i, 0), (i, self.height), 1)
+        for i in range(0, self.height, 20):
+            pygame.draw.line(screen, gray, (0, i), (self.width, i), 1)
     
         #Draw Snake
         length = 0
@@ -88,7 +88,7 @@ class Game:
         #Display Score
         scoretxt = "Score: " + str(self.score)
         score_text = font_score.render(scoretxt, True, (0, 0, 255))
-        screen.blit(score_text, (WIDTH - score_text.get_width() ,score_text.get_height()-35))
+        screen.blit(score_text, (self.width - score_text.get_width() ,score_text.get_height()-35))
     
         #AI Decision/User Input
         if self.control == "RULE BASED":
@@ -147,19 +147,18 @@ class Game:
             #Check if Snake Eats Apple
             if new_head == self.apple_pos:
                 self.score = self.score + 1
-                self.apple_pos = self.next_apple_pos
                 #Generate New Apple Position
                 while True:
-                    self.next_apple_pos = [random.randint(0, (WIDTH - 20) // 20) * 20,
-                            random.randint(0, (HEIGHT - 20) // 20) * 20]
+                    self.apple_pos = [random.randint(0, (self.width - 20) // 20) * 20,
+                            random.randint(0, (self.height - 20) // 20) * 20]
 
-                    if self.next_apple_pos not in self.snake_pos:
+                    if self.apple_pos not in self.snake_pos:
                         break
             else:
                 self.snake_pos.pop()
 
         #Check for Collisions
-        if new_head[0] < 0 or new_head[0] >= WIDTH or new_head[1] < 0 or new_head[1] >= HEIGHT:
+        if new_head[0] < 0 or new_head[0] >= self.width or new_head[1] < 0 or new_head[1] >= self.height:
             self.game_state = "GAME_OVER"
             return
         for block in self.snake_pos[1:]:
@@ -189,8 +188,8 @@ class Game:
             mouse_pos = pygame.mouse.get_pos()
 
             #Control Selection (Player/AI)
-            player_ctrl = pygame.Rect(WIDTH // 2 - 75, 245, 150, 40)
-            ai_ctrl = pygame.Rect(WIDTH // 2 - 75, 290, 150, 40)
+            player_ctrl = pygame.Rect(self.width // 2 - 75, 245, 150, 40)
+            ai_ctrl = pygame.Rect(self.width // 2 - 75, 290, 150, 40)
 
             #Check Events
             for event in pygame.event.get():
@@ -209,21 +208,21 @@ class Game:
 
             #Menu Setup
             screen.fill((0, 0, 0))
-            screen.blit(text, (WIDTH // 2 - text.get_width() // 2, 150))
-            screen.blit(name_text, (WIDTH // 2 - name_text.get_width() // 2, 200))
-            screen.blit(game_image, (WIDTH // 2 - game_image.get_width() // 2, 80))
+            screen.blit(text, (self.width // 2 - text.get_width() // 2, 150))
+            screen.blit(name_text, (self.width // 2 - name_text.get_width() // 2, 200))
+            screen.blit(game_image, (self.width // 2 - game_image.get_width() // 2, 80))
 
             if player_ctrl.collidepoint(mouse_pos):
                 pygame.draw.rect(screen, (255, 0, 0), player_ctrl, 2, border_radius=5)
-                screen.blit(player_ctrl_txt_1, (WIDTH // 2 - 75 + 10, 245 + 10))
+                screen.blit(player_ctrl_txt_1, (self.width // 2 - 75 + 10, 245 + 10))
             else:
-                screen.blit(player_ctrl_txt_2, (WIDTH // 2 - 75 + 10, 245 + 10))
+                screen.blit(player_ctrl_txt_2, (self.width // 2 - 75 + 10, 245 + 10))
                 pygame.draw.rect(screen, (0, 255, 0), player_ctrl, 2, border_radius=5)
             if ai_ctrl.collidepoint(mouse_pos):
-                screen.blit(ai_ctrl_txt_1, (WIDTH // 2 - 75 + 10, 290 + 10))
+                screen.blit(ai_ctrl_txt_1, (self.width // 2 - 75 + 10, 290 + 10))
                 pygame.draw.rect(screen, (255, 0, 0), (ai_ctrl), 2, border_radius=5)
             else:
-                screen.blit(ai_ctrl_txt_2, (WIDTH // 2 - 75 + 10, 290 + 10))
+                screen.blit(ai_ctrl_txt_2, (self.width // 2 - 75 + 10, 290 + 10))
                 pygame.draw.rect(screen, (0, 255, 0), (ai_ctrl), 2, border_radius=5)
 
             #Update Display
@@ -255,13 +254,13 @@ class Game:
             mouse_pos = pygame.mouse.get_pos()
 
             #AI Selection Buttons
-            rule_based = pygame.Rect(WIDTH // 2 -155, 130, 150, 40)
-            random_ai = pygame.Rect(WIDTH // 2 - 155, 175, 150, 40)
-            hamiltonian_ai = pygame.Rect(WIDTH // 2 - 155, 220, 150, 40)
-            heuristic_ai = pygame.Rect(WIDTH // 2 + 5, 130, 150, 40)
-            a_star_ai = pygame.Rect(WIDTH // 2 + 5, 175, 150, 40)
-            q_learning_ai = pygame.Rect(WIDTH // 2 + 5, 220, 150, 40)
-            deep_q_ai = pygame.Rect(WIDTH // 2 - 75, 265, 150, 40)
+            rule_based = pygame.Rect(self.width // 2 -155, 130, 150, 40)
+            random_ai = pygame.Rect(self.width // 2 - 155, 175, 150, 40)
+            hamiltonian_ai = pygame.Rect(self.width // 2 - 155, 220, 150, 40)
+            heuristic_ai = pygame.Rect(self.width // 2 + 5, 130, 150, 40)
+            a_star_ai = pygame.Rect(self.width // 2 + 5, 175, 150, 40)
+            q_learning_ai = pygame.Rect(self.width // 2 + 5, 220, 150, 40)
+            deep_q_ai = pygame.Rect(self.width // 2 - 75, 265, 150, 40)
 
             #Check Events
             for event in pygame.event.get():
@@ -300,49 +299,49 @@ class Game:
 
             #Menu Setup
             screen.fill((0, 0, 0))
-            screen.blit(title, (WIDTH // 2 - title.get_width() // 2, 60))
+            screen.blit(title, (self.width // 2 - title.get_width() // 2, 60))
 
             if rule_based.collidepoint(mouse_pos):
                 pygame.draw.rect(screen, (255, 0, 0), rule_based, 2, border_radius=5)
-                screen.blit(rule_based_txt_1, (WIDTH // 2 - 155 + 10, 130 + 10))
+                screen.blit(rule_based_txt_1, (self.width // 2 - 155 + 10, 130 + 10))
             else:
-                screen.blit(rule_based_txt_2, (WIDTH // 2 - 155 + 10, 130 + 10))
+                screen.blit(rule_based_txt_2, (self.width // 2 - 155 + 10, 130 + 10))
                 pygame.draw.rect(screen, (0, 255, 0), rule_based, 2, border_radius=5)
             if random_ai.collidepoint(mouse_pos):
                 pygame.draw.rect(screen, (255, 0, 0), random_ai, 2, border_radius=5)
-                screen.blit(random_txt_1, (WIDTH // 2 - 155 + 10, 175 + 10))
+                screen.blit(random_txt_1, (self.width // 2 - 155 + 10, 175 + 10))
             else:
-                screen.blit(random_txt_2, (WIDTH // 2 - 155 + 10, 175 + 10))
+                screen.blit(random_txt_2, (self.width // 2 - 155 + 10, 175 + 10))
                 pygame.draw.rect(screen, (0, 255, 0), random_ai, 2, border_radius=5)
             if hamiltonian_ai.collidepoint(mouse_pos):
                 pygame.draw.rect(screen, (255, 0, 0), hamiltonian_ai, 2, border_radius=5)
-                screen.blit(hamiltonian_txt_1, (WIDTH // 2 - 155 + 10, 220 + 10))
+                screen.blit(hamiltonian_txt_1, (self.width // 2 - 155 + 10, 220 + 10))
             else:
-                screen.blit(hamiltonian_txt_2, (WIDTH // 2 - 155 + 10, 220 + 10))
+                screen.blit(hamiltonian_txt_2, (self.width // 2 - 155 + 10, 220 + 10))
                 pygame.draw.rect(screen, (0, 255, 0), hamiltonian_ai, 2, border_radius=5)
             if heuristic_ai.collidepoint(mouse_pos):
                 pygame.draw.rect(screen, (255, 0, 0), heuristic_ai, 2, border_radius=5)
-                screen.blit(heuristic_txt_1, (WIDTH // 2 + 5 + 10, 130 + 10))
+                screen.blit(heuristic_txt_1, (self.width // 2 + 5 + 10, 130 + 10))
             else:
-                screen.blit(heuristic_txt_2, (WIDTH // 2 + 5 + 10, 130 + 10))
+                screen.blit(heuristic_txt_2, (self.width // 2 + 5 + 10, 130 + 10))
                 pygame.draw.rect(screen, (0, 255, 0), heuristic_ai, 2, border_radius=5)
             if a_star_ai.collidepoint(mouse_pos):
                 pygame.draw.rect(screen, (255, 0, 0), a_star_ai, 2, border_radius=5)
-                screen.blit(a_star_txt_1, (WIDTH // 2 + 5 + 10, 175 + 10))
+                screen.blit(a_star_txt_1, (self.width // 2 + 5 + 10, 175 + 10))
             else:
-                screen.blit(a_star_txt_2, (WIDTH // 2 + 5 + 10, 175 + 10))
+                screen.blit(a_star_txt_2, (self.width // 2 + 5 + 10, 175 + 10))
                 pygame.draw.rect(screen, (0, 255, 0), a_star_ai, 2, border_radius=5)
             if q_learning_ai.collidepoint(mouse_pos):
                 pygame.draw.rect(screen, (255, 0, 0), q_learning_ai, 2, border_radius=5)
-                screen.blit(q_learning_txt_1, (WIDTH // 2 + 5 + 10, 220 + 10))
+                screen.blit(q_learning_txt_1, (self.width // 2 + 5 + 10, 220 + 10))
             else:
-                screen.blit(q_learning_txt_2, (WIDTH // 2 + 5 + 10, 220 + 10))
+                screen.blit(q_learning_txt_2, (self.width // 2 + 5 + 10, 220 + 10))
                 pygame.draw.rect(screen, (0, 255, 0), q_learning_ai, 2, border_radius=5)
             if deep_q_ai.collidepoint(mouse_pos):
                 pygame.draw.rect(screen, (255, 0, 0), deep_q_ai, 2, border_radius=5)
-                screen.blit(deep_q_txt_1, (WIDTH // 2 - 75 + 10, 265 + 10))
+                screen.blit(deep_q_txt_1, (self.width // 2 - 75 + 10, 265 + 10))
             else:
-                screen.blit(deep_q_txt_2, (WIDTH // 2 - 75 + 10, 265 + 10))
+                screen.blit(deep_q_txt_2, (self.width // 2 - 75 + 10, 265 + 10))
                 pygame.draw.rect(screen, (0, 255, 0), deep_q_ai, 2, border_radius=5)
 
             pygame.display.update()
@@ -382,16 +381,16 @@ class Game:
             #Menu Setup and Display "Game Over" Text and Score/High Score
             screen.fill((0, 0, 0))
             text = font_game_over.render("Game Over", True, (255, 0, 0))
-            screen.blit(game_over_txt, (WIDTH // 2 - game_over_txt.get_width() // 2, HEIGHT // 2 - game_over_txt.get_height() // 2 - 100))
-            screen.blit(score_text, (WIDTH // 2 - score_text.get_width() // 2, HEIGHT // 2 + game_over_txt.get_height() // 2 - 90))
-            screen.blit(highscore_text, (WIDTH // 2 - highscore_text.get_width() // 2, HEIGHT // 2 + game_over_txt.get_height() // 2 - 60 ))
-            restart_game = pygame.Rect(WIDTH // 2 - 75, 245, 150, 40)
-            quit_game = pygame.Rect(WIDTH // 2 - 75, 290, 150, 40)
+            screen.blit(game_over_txt, (self.width // 2 - game_over_txt.get_width() // 2, self.height // 2 - game_over_txt.get_height() // 2 - 100))
+            screen.blit(score_text, (self.width // 2 - score_text.get_width() // 2, self.height // 2 + game_over_txt.get_height() // 2 - 90))
+            screen.blit(highscore_text, (self.width // 2 - highscore_text.get_width() // 2, self.height // 2 + game_over_txt.get_height() // 2 - 60 ))
+            restart_game = pygame.Rect(self.width // 2 - 75, 245, 150, 40)
+            quit_game = pygame.Rect(self.width // 2 - 75, 290, 150, 40)
 
             #Restart/Quit Buttons Selection
             if restart_game.collidepoint(pygame.mouse.get_pos()):
                 pygame.draw.rect(screen, (255, 0, 0), restart_game, 2, border_radius=5)
-                screen.blit(restart_txt_1, (WIDTH // 2 - 75 + 10, 245 + 10))
+                screen.blit(restart_txt_1, (self.width // 2 - 75 + 10, 245 + 10))
                 if pygame.mouse.get_pressed()[0]:
                     # Wait for mouse release so the menu doesn't immediately register the same click (debugging menu state overlap issue)
                     while pygame.mouse.get_pressed()[0]:
@@ -404,35 +403,38 @@ class Game:
                     status = False
                     self.game_state = "MENU"
             else:
-                screen.blit(restart_txt_2, (WIDTH // 2 - 75 + 10, 245 + 10))
+                screen.blit(restart_txt_2, (self.width // 2 - 75 + 10, 245 + 10))
                 pygame.draw.rect(screen, (0, 255, 0), restart_game, 2, border_radius=5)
             if quit_game.collidepoint(pygame.mouse.get_pos()):
-                screen.blit(quit_txt_1, (WIDTH // 2 - 75 + 10, 290 + 10))
+                screen.blit(quit_txt_1, (self.width // 2 - 75 + 10, 290 + 10))
                 pygame.draw.rect(screen, (255, 0, 0), quit_game, 2, border_radius=5)
                 if pygame.mouse.get_pressed()[0]:
                     pygame.quit()
                     exit()
             else:
-                screen.blit(quit_txt_2, (WIDTH // 2 - 75 + 10, 290 + 10))
+                screen.blit(quit_txt_2, (self.width // 2 - 75 + 10, 290 + 10))
                 pygame.draw.rect(screen, (0, 255, 0), quit_game, 2, border_radius=5)
             pygame.display.update()
 
 
-game = Game()
-while running:
-    # Handle events
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-    current_time = pygame.time.get_ticks()
-    
-    if game.game_state == "MENU":
-        Game.game_start(game)
-    elif game.game_state == "PLAYING":
-        Game.play_game(game)
-    elif game.game_state == "GAME_OVER":
-        Game.game_over(game)
-    elif game.game_state == "AI MENU":
-        Game.ai_menu(game)
+if __name__ == "__main__":
+    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    pygame.display.set_caption("Snake Game")
+    game = Game()
+    while running:
+        # Handle events
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+        current_time = pygame.time.get_ticks()
+        
+        if game.game_state == "MENU":
+            Game.game_start(game)
+        elif game.game_state == "PLAYING":
+            Game.play_game(game)
+        elif game.game_state == "GAME_OVER":
+            Game.game_over(game)
+        elif game.game_state == "AI MENU":
+            Game.ai_menu(game)
 
-pygame.quit()
+    pygame.quit()
