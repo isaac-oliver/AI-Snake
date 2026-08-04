@@ -54,13 +54,15 @@ class Game:
         self.next_apple_pos = [random.randint(0, (WIDTH - 20) // 20) * 20,
         random.randint(0, (HEIGHT - 20) // 20) * 20]
         self.key = "RIGHT"
-        self.move_del = 10
+        self.move_del = 25
         self.lastmove = 0
         self.current_time = 0
         self.FPS = 60
         self.control = "PLAYER"
         self.game_state = "MENU"
         self.need_escape = False
+        self.escape_mode = False
+        self.escape_axis = None
 
     def play_game(self):
         #Screen Setup
