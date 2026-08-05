@@ -1,23 +1,27 @@
-Snake Ai
+Snake AI: A Comparative Evaluation of Search, Heuristic, and Reinforcement Learning Agents
 
 
-This project consists of building the classic snake game, and then teaching an AI to play the game using a rulebased AI model.
+The purpose of this project is first to develop a clean, organized classic snake game in pygame. Multiple artificial intelligence agents are then coded from scratch to play the snake game. The performance of each of these agents are benchmarked and compared to one another.
 
-Features
+The individual AI agents include:
 
-- Snake movement using keyboard controls
+- Random
 
-- Adjustable movement speed
+This simple agent acts as a control group. The agent produces a random decision that results in a low score.
 
-- Game over detection
+- Hamiltonian Cycle
 
-- Snake growth system
+The Hamiltonian cycle visits every single possible coordinate once and returns to the exact same spot. This allows the agent to obtain a perfect score every try. Although it gets a perfect score, it is extremely inefficient. 
 
-- Pygame graphics and rendering
+- Rule Based
 
-Things learned throughout this project:
+This is agent is the start of AI decision-making by using simple rules to guide the AI. The code that was implemented produces a list of legal moves that the snake can use without dying. The AI then picks the move that allows the snake to reach the apple.
 
-- How to use pygame
+- Heuristic
+
+This agent uses heuristics to calculate the best possible move in a certain situation. The heuristics give every legal move that can be used a score based on different conditions, the move with the highest score is then chosen for the snake to use. The 5 main heuristics that were used include 
+
+
 
 Skills used:
 
@@ -26,6 +30,11 @@ Skills used:
 - Git/Github
 
 - Pygame
+
+- Advanced Pathfinding Algorithms
+
+- PyTorch
+
 
 
 
